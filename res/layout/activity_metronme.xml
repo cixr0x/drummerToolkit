@@ -15,26 +15,6 @@
         android:text="@string/hello_world" />
 
     <Button
-        android:id="@+id/subsBpm"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/addBpm"
-        android:layout_alignBottom="@+id/addBpm"
-        android:layout_toLeftOf="@+id/addBpm"
-        android:text="-" />
-
-    <Button
-        android:id="@+id/addBpm"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/bpmBar"
-        android:layout_below="@+id/textView1"
-        android:text="+" 
-        android:onClick="addBpm"/>
-
-    <Button
         android:id="@+id/startStopMetronome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,7 +22,7 @@
         android:layout_below="@+id/subsBpm"
         android:layout_marginLeft="26dp"
         android:layout_marginTop="46dp"
-        android:onClick="toggleMetronome"
+        
         android:text="Button" />
 
     <SeekBar
@@ -54,14 +34,60 @@
         android:max="280"
         />
 
+    <Button
+        android:id="@+id/addBpm"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/bpmBar"
+        android:layout_below="@+id/bpmBar"
+        android:onClick="addBpm"
+        android:text="+" />
+
+    <Button
+        android:id="@+id/subsBpm"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/addBpm"
+        android:layout_alignBottom="@+id/addBpm"
+        android:layout_toLeftOf="@+id/addBpm"
+        android:onClick="subsBpm"
+        android:text="-" />
+
     <TextView
         android:id="@+id/bpmText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/subsBpm"
-        android:layout_marginTop="28dp"
-        android:layout_toRightOf="@+id/startStopMetronome"
+        android:layout_alignBaseline="@+id/subsBpm"
+        android:layout_alignBottom="@+id/subsBpm"
+        android:layout_alignLeft="@+id/bpmBar"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <ToggleButton
+        android:id="@+id/toggleMetronome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/startStopMetronome"
+        android:layout_alignBottom="@+id/startStopMetronome"
+        android:layout_toLeftOf="@+id/subsBpm"
+        android:onClick="toggleMetronome"
+        android:text="ToggleButton" />
+
+    <Spinner
+        android:id="@+id/signature_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toggleMetronome"
+        android:layout_marginTop="15dp"
+        android:layout_toLeftOf="@+id/signature_beats" />
+
+    <Spinner
+        android:id="@+id/signature_beats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/toggleMetronome"
+        android:layout_alignTop="@+id/spinner1" />
 
 </RelativeLayout>

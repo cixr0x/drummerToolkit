@@ -64,7 +64,8 @@ public class Metronome {
         }
 
         public void calcSilence() {
-    		silence = (int) (((60/(double)bpm)*8000)-tick);		
+    		silence = (int) (((60/(double)bpm)*8000)-tick);	
+    		Log.i("DTk", "BPM:"+Integer.toString(bpm) + Integer.toString(silence));
     		soundTickArray = new double[this.tick];	
     		soundTockArray = new double[this.tick];
     		silenceSoundArray = new double[this.silence];
