@@ -1,9 +1,13 @@
 package com.example.drummertoolkit;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -20,10 +24,16 @@ public class MetronomeActivity extends Activity implements OnItemSelectedListene
 	private MetronomeTask metroTask;
 	private boolean playing =false;
 	private int currentBpm;
+	private int beats;
+	private int subdivision;
+	private int volume;
 	Metronome metronome;
 	
-	private int maxBpm=280;
-	private int minBpm=30;
+	private int maxBpm=240;
+	private int minBpm=20;
+	
+	private AudioManager audio;
+	private Handler mHandler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,50 +44,48 @@ public class MetronomeActivity extends Activity implements OnItemSelectedListene
 		setContentView(R.layout.activity_metronme);
 		metroTask = new MetronomeTask();
 		setBpm(100);
-		final SeekBar sk=(SeekBar) findViewById(R.id.bpmBar);     
-	
-	    sk.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {       
-	
-		    @Override       
-		    public void onStopTrackingTouch(SeekBar seekBar) {      
-		        // TODO Auto-generated method stub      
-		    }       
-	
-		    @Override       
-		    public void onStartTrackingTouch(SeekBar seekBar) {     
-		        // TODO Auto-generated method stub      
-		    }       
-	
-		    @Override       
-		    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {     
-		        // TODO Auto-generated method stub      
-	
-		    	setBpm(progress);
-	
-		    }       
-	    });    
+		final SeekBar bpmBar=(SeekBar) findViewById(R.id.bpmBar);     
+		bpmBar.setOnSeekBarChangeListener(bpmBarListener);
+		
 	    Spinner beatsSpinner = (Spinner) findViewById(R.id.signature_beats);
-	    // Create an ArrayAdapter using the string array and a default spinner layout
 	    ArrayAdapter<CharSequence> beatsAdapter = ArrayAdapter.createFromResource(this,
 	         R.array.signature_beats, android.R.layout.simple_spinner_item);
-	 	// Specify the layout to use when the list of choices appears
 	    beatsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	 	// Apply the adapter to the spinner
 	 	beatsSpinner.setAdapter(beatsAdapter);
-	 	
 	 	beatsSpinner.setOnItemSelectedListener(this);
 	 	
 	 	Spinner valueSpinner = (Spinner) findViewById(R.id.signature_value);
-	    // Create an ArrayAdapter using the string array and a default spinner layout
 	    ArrayAdapter<CharSequence> valueAdapter = ArrayAdapter.createFromResource(this,
 	         R.array.signature_value, android.R.layout.simple_spinner_item);
-	 	// Specify the layout to use when the list of choices appears
 	    valueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	 	// Apply the adapter to the spinner
 	    valueSpinner.setAdapter(valueAdapter);
-	 	
 	    valueSpinner.setOnItemSelectedListener(this);
+	    
+	    Spinner subdivisionSpinner = (Spinner) findViewById(R.id.subdivision_spinner);
+	    ArrayAdapter<CharSequence> subdivisionAdapter = ArrayAdapter.createFromResource(this,
+	         R.array.subdivision, android.R.layout.simple_spinner_item);
+	    subdivisionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    subdivisionSpinner.setAdapter(subdivisionAdapter);
+	    subdivisionSpinner.setOnItemSelectedListener(this);
+	    audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+	    
+	    SeekBar volumeBar = (SeekBar) findViewById(R.id.volumeBar);
+	    volumeBar.setMax(audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+	    volumeBar.setProgress(volume);
+        volumeBar.setOnSeekBarChangeListener(volumeListener);
 	}
+	
+	private Handler getHandler() {
+    	return new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+            	String message = (String)msg.obj;
+            	TextView beatCounter = (TextView) findViewById(R.id.beatCounter);
+            	beatCounter.setText(message);
+            }
+        };
+    }
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,17 +145,15 @@ public class MetronomeActivity extends Activity implements OnItemSelectedListene
 		
     	
     	MetronomeTask() {
-            //mHandler = getHandler();
-    		metronome = new Metronome();
+            mHandler = getHandler();
+    		metronome = new Metronome(mHandler);
     	}
 		@Override
 		protected String doInBackground(Void... arg0) {
 			// TODO Auto-generated method stub
 			
-	        metronome.setBeat(4);
-	        metronome.setBeatSound(1600);
-	        metronome.setSound(2200);
-	        metronome.setNoteValue(1);
+	        metronome.setBeat(beats);
+	        metronome.setSubdivision(subdivision);
 	        metronome.setBpm(currentBpm);
 	        
 	        metronome.play();
@@ -163,19 +169,81 @@ public class MetronomeActivity extends Activity implements OnItemSelectedListene
 		
 	}
 	
+	private void setSubdivision(int subdivision)
+	{
+		this.subdivision=subdivision;
+		metronome.setSubdivision(subdivision);
+		metronome.calcSilence();
+	}
 	private void setBeats(int beats)
 	{
+		this.beats=beats;
 		metronome.setBeat(beats);
 		
 	}
 
+	private OnSeekBarChangeListener volumeListener = new OnSeekBarChangeListener() {
+
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress,
+				boolean fromUser) {
+			// TODO Auto-generated method stub
+			volume = (short) progress;
+			audio.setStreamVolume(AudioManager.STREAM_MUSIC, progress, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+		}   	
+    	
+    };
+    private OnSeekBarChangeListener bpmBarListener = new OnSeekBarChangeListener() {
+    	 @Override       
+		    public void onStopTrackingTouch(SeekBar seekBar) {      
+		        // TODO Auto-generated method stub      
+		    }       
+	
+		    @Override       
+		    public void onStartTrackingTouch(SeekBar seekBar) {     
+		        // TODO Auto-generated method stub      
+		    }       
+	
+		    @Override       
+		    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {     
+		        // TODO Auto-generated method stub      
+	
+		    	setBpm(progress);
+	
+		    }       
+    	
+    };
+    
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int pos,
 			long id) {
 		// TODO Auto-generated method stub
+		if (parent.getId() ==R.id.signature_beats)
+		{
+			setBeats(Integer.parseInt(parent.getItemAtPosition(pos).toString()));
+		}
 		
-		Log.i("DTk", "Item selected: "+  parent.getId());
-		setBeats(Integer.parseInt(parent.getItemAtPosition(pos).toString()));
+		if (parent.getId() ==R.id.signature_value)
+		{
+			
+		}
+		
+		if (parent.getId() ==R.id.subdivision_spinner)
+		{
+			setSubdivision(Integer.parseInt(parent.getItemAtPosition(pos).toString()));
+		}
+		
 	}
 
 	@Override

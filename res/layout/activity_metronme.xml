@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/textView1"
-        android:max="280"
+        android:max="240"
         />
 
     <Button
@@ -65,7 +65,7 @@
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ToggleButton
+	<ToggleButton
         android:id="@+id/toggleMetronome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -74,7 +74,6 @@
         android:layout_toLeftOf="@+id/subsBpm"
         android:onClick="toggleMetronome"
         android:text="ToggleButton" />
-
     <Spinner
         android:id="@+id/signature_value"
         android:layout_width="wrap_content"
@@ -88,6 +87,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/toggleMetronome"
-        android:layout_alignTop="@+id/spinner1" />
+        android:layout_below="@+id/signature_value" />
+
+    <Spinner
+        android:id="@+id/subdivision_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/startStopMetronome"
+        android:layout_below="@+id/signature_beats" />
+
+    <SeekBar
+        android:id="@+id/volumeBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/subdivision_spinner" />
+
+    <TextView
+        android:id="@+id/beatCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/signature_value"
+        android:layout_marginTop="17dp"
+        android:layout_toLeftOf="@+id/addBpm"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>
